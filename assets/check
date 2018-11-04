@@ -31,8 +31,8 @@ else
         --arg ip "$current_ip" \
         --arg previous_ip "$previous_ip" \
     '[
-        { "ip": $ip },
-        { "ip": $previous_ip }
+        { "ip": $previous_ip },
+        { "ip": $ip }
     ]' >&3
 
 fi

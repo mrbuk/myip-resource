@@ -8,7 +8,11 @@ resource_types:
 resources:
 - name: myip
   type: myip-resource
-  source: {}
+  source:
+    # default
+    #uri: https://api.ipify.org
+    # change to a local server for testing
+    #uri: http://192.168.0.100:8080
 
 jobs:
 - name: job-myip
