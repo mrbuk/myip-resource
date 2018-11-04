@@ -20,22 +20,25 @@ previous=$(jq -r '.version // ""' < "$payload")
 previous_ip=$(jq -r '.version.ip // ""' < "$payload")
 
 # nothing exists
-if [[ "$previous_ip" == "" || "$previous_ip" == "$current_ip" ]]; then
+if [[ "$previous_ip" == "" ]]; then
     # shellcheck disable=SC2016
-    jq -c -n --arg ip "$current_ip" \
-    --arg date "$(date -Iseconds)" \
-    '[ 
-        { "ip": $ip, "date": $date } 
-    ]' >&3
+    jq -c -n \
+        --arg ip "$current_ip" \
+        --arg date "$(date -Iseconds)" \
+        '[ { "ip": $ip, "date": $date } ]' >&3
+# previous ip is same as current ip -> use previous object (incl. date)
+elif [[ "$previous_ip" == "$current_ip" ]]; then
+    # shellcheck disable=SC2016
+    jq -c -n \
+        --argjson previous "$previous" \
+        '[ $previous ]' >&3
+# previous ip is different to current up -> create a new version oject
 else
     # shellcheck disable=SC2016
     jq -c -n \
         --arg ip "$current_ip" \
         --arg date "$(date -Iseconds)" \
         --argjson previous "$previous" \
-    '[
-        $previous,
-        { "ip": $ip, "date": $date }
-    ]' >&3
+        '[ $previous, { "ip": $ip, "date": $date } ]' >&3
 
 fi
