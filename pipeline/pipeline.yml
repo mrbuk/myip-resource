@@ -1,0 +1,29 @@
+resource_types:
+- name: myip-resource
+  type: docker-image
+  source:
+    repository: mrbuk/myip-resource
+    tag: latest
+
+resources:
+- name: myip
+  type: myip-resource
+  source: {}
+
+jobs:
+- name: job-myip
+  plan:
+  - get: myip
+    trigger: true
+  - task: cat-myip
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      inputs:
+        - name: myip
+      run:
+        path: cat
+        args:
+        - myip/ip

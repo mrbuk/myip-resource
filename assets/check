@@ -1,0 +1,38 @@
+#!/bin/bash
+# vim: set ft=bash
+
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+payload=$TMPDIR/myip-resource-request
+
+cat > "$payload" <&0
+
+uri=$(jq -r '.source.uri // ""' < "$payload")
+if [ "$uri" == "" ]; then
+    uri="https://api.ipify.org"
+fi
+current_ip=$(curl -s "$uri")
+
+previous_ip=$(jq -r '.version.ip // ""' < "$payload")
+
+# nothing exists
+if [[ "$previous_ip" == "" || "$previous_ip" == "$current_ip" ]]; then
+    # shellcheck disable=SC2016
+    jq -c -n --arg ip "$current_ip" \
+    '[ 
+        { "ip": $ip } 
+    ]' >&3
+else
+    # shellcheck disable=SC2016
+    jq -c -n \
+        --arg ip "$current_ip" \
+        --arg previous_ip "$previous_ip" \
+    '[
+        { "ip": $ip },
+        { "ip": $previous_ip }
+    ]' >&3
+
+fi
