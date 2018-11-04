@@ -16,23 +16,26 @@ if [ "$uri" == "" ]; then
 fi
 current_ip=$(curl -s "$uri")
 
+previous=$(jq -r '.version // ""' < "$payload")
 previous_ip=$(jq -r '.version.ip // ""' < "$payload")
 
 # nothing exists
 if [[ "$previous_ip" == "" || "$previous_ip" == "$current_ip" ]]; then
     # shellcheck disable=SC2016
     jq -c -n --arg ip "$current_ip" \
+    --arg date "$(date -Iseconds)" \
     '[ 
-        { "ip": $ip } 
+        { "ip": $ip, "date": $date } 
     ]' >&3
 else
     # shellcheck disable=SC2016
     jq -c -n \
         --arg ip "$current_ip" \
-        --arg previous_ip "$previous_ip" \
+        --arg date "$(date -Iseconds)" \
+        --argjson previous "$previous" \
     '[
-        { "ip": $previous_ip },
-        { "ip": $ip }
+        $previous,
+        { "ip": $ip, "date": $date }
     ]' >&3
 
 fi

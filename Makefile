@@ -8,7 +8,7 @@ all: build save
 build:
 	docker build . -t ${user}/${project}:$(version) -t ${user}/${project}:latest
 
-push:
+push: build
 	docker push ${user}/${project}:$(version)
 	docker push ${user}/${project}:latest
 
