@@ -40,5 +40,4 @@ else
         --arg date "$(date -Iseconds)" \
         --argjson previous "$previous" \
         '[ $previous, { "ip": $ip, "date": $date } ]' >&3
-
 fi

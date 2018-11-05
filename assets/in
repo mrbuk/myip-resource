@@ -10,6 +10,7 @@ payload=$TMPDIR/myip-resource-request
 
 cat > "$payload" <&0
 
+version_object=$(jq -r '.version // "{}"' < "$payload")
 ip=$(jq -r '.version.ip // ""' < "$payload")
 
 mkdir -p "$1"
@@ -17,7 +18,7 @@ cd "$1"
 echo "$ip" >> ip
 
 jq -c -n \
-    --arg ip "$ip" \
+    --argjson version_object "$version_object" \
     '{
-        "version": { "ip": $ip }
+        "version": $version_object
     }' >&3
