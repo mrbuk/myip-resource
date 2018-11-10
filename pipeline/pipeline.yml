@@ -20,7 +20,7 @@ resources:
   type: myip-resource
   source:
     method: resolve-resource-record
-    resource_record: fritz-doesnt-exist.werkbank.io
+    resource_record: google.com
 
 jobs:
 - name: fetch-uri
