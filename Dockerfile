@@ -5,7 +5,8 @@ RUN apk --no-cache add \
   curl \
   gzip \
   jq \
-  libressl
+  libressl \
+  bind-tools
 
 ADD assets/ /opt/resource/
 RUN chmod +x /opt/resource/*

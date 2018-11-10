@@ -1,0 +1,6 @@
+{
+    "source": {
+        "method": "resolve-resource-record",
+        "resource_record": "fritz.werkbank.io"
+    }
+}

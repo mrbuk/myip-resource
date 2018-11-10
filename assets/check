@@ -10,11 +10,32 @@ payload=$TMPDIR/myip-resource-request
 
 cat > "$payload" <&0
 
-uri=$(jq -r '.source.uri // ""' < "$payload")
-if [ "$uri" == "" ]; then
-    uri="https://api.ipify.org"
+methods=("fetch-uri" "resolve-resource-record")
+
+method=$(jq -r '.source.method // ""' < "$payload")
+if [ "$method" == "fetch-uri" ] || [ "$method" == "" ]; then
+    uri=$(jq -r '.source.uri // ""' < "$payload")
+    if [ "$uri" == "" ]; then   
+        uri="https://api.ipify.org"
+    fi
+    current_ip=$(curl -s "$uri")
+
+elif [ "$method" == "resolve-resource-record" ]; then
+    resource_record=$(jq -r '.source.resource_record // ""' < "$payload")
+    if [ "$resource_record" == "" ]; then   
+        echo "Please provide 'resource_record'"
+        exit 1
+    fi
+    current_ip=$(dig +short "$resource_record")
+else
+    echo "Unknown method: '$method'. Currently supported: ${methods[*]}"
+    exit 1
 fi
-current_ip=$(curl -s "$uri")
+
+if [ "$current_ip" == "" ]; then
+    echo "No IP address returned."
+    exit 2
+fi
 
 previous=$(jq -r '.version // ""' < "$payload")
 previous_ip=$(jq -r '.version.ip // ""' < "$payload")

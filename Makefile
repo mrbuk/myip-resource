@@ -1,9 +1,15 @@
-version = 0.1
+version = 0.2
 user = mrbuk
 project = myip-resource
 
 all: build save
 .PHONY : all
+
+build-dev:
+	docker build . -t ${user}/${project}:$(version)-dev
+
+push-dev: build-dev
+	docker push ${user}/${project}:$(version)-dev
 
 build:
 	docker build . -t ${user}/${project}:$(version) -t ${user}/${project}:latest

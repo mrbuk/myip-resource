@@ -3,23 +3,52 @@ resource_types:
   type: docker-image
   source:
     repository: mrbuk/myip-resource
-    tag: latest
+    tag: 0.2-dev
 
 resources:
-- name: myip
+- name: myip-fetch-uri
   type: myip-resource
   source:
+    # default
+    #method: fetch-uri
     # default
     #uri: https://api.ipify.org
     # change to a local server for testing
     #uri: http://192.168.0.100:8080
 
+- name: myip-resolve-resource-record
+  type: myip-resource
+  source:
+    method: resolve-resource-record
+    resource_record: fritz-doesnt-exist.werkbank.io
+
 jobs:
-- name: job-myip
+- name: fetch-uri
   plan:
-  - get: myip
+  - get: myip-fetch-uri
     trigger: true
   - task: cat-myip
+    input_mapping:
+      myip: myip-fetch-uri
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      inputs:
+        - name: myip
+      run:
+        path: cat
+        args:
+        - myip/ip
+
+- name: resolve-resource-record
+  plan:
+  - get: myip-resolve-resource-record
+    trigger: true
+  - task: cat-myip
+    input_mapping:
+      myip: myip-resolve-resource-record
     config:
       platform: linux
       image_resource:
